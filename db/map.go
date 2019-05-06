@@ -139,6 +139,11 @@ func (m *Map) MapNewTable(tableName string) bool {
 	}
 	offset += 128
 	fp.WriteAt(tbid, int64(offset))
+	offset += 2
+	// Allocate 2048 buffer
+	tableData := make([]byte, 2048)
+
+	fp.WriteAt(tableData, int64(offset))
 
 	err := fp.Sync()
 	if err != nil {
@@ -150,4 +155,9 @@ func (m *Map) MapNewTable(tableName string) bool {
 	m.TableCount++
 
 	return true
+}
+
+// UpdateIndex - updates the index file with a newely inserted value
+func (m *Map) UpdateIndex(tableName string, hash uint32, location int64) {
+
 }

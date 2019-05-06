@@ -20,6 +20,7 @@ import (
 	"encoding/binary"
 
 	"github.com/Vect0rZ/gibkv/storage"
+	"github.com/Vect0rZ/gibkv/util"
 )
 
 // CreateTable - creates a table for a given database
@@ -42,4 +43,22 @@ func (m *Map) CreateTable(tableName string) bool {
 	m.MapNewTable(tableName)
 
 	return true
+}
+
+func (m *Map) Insert(tableName, key, value string) {
+	fp := storage.OpenFile(m.DBName + "/" + tableName)
+	defer fp.Close()
+
+	fi, _ := fp.Stat()
+
+	kh := util.Hash(key)
+	vd := []byte(value)
+
+	var data = make([]byte, 4+len(vd))
+	copy(data[0:4], util.UInt32ToBytes(kh))
+	copy(data[4:len(vd)], vd)
+
+	fp.Write(data)
+
+	m.UpdateIndex(tableName, kh, fi.Size())
 }
